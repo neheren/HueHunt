@@ -53,9 +53,9 @@ public class hueBridgeLinker : MonoBehaviour
     /// UI.
     /// </summary>
     [Header("UI")]
-    public GameObject errorPanel;
-    public GameObject inputFieldTxt;
-    public GameObject inputField;
+    GameObject errorPanel;
+    GameObject inputFieldTxt;
+    GameObject inputField;
 
 
     /// <summary>
@@ -110,8 +110,13 @@ public class hueBridgeLinker : MonoBehaviour
         defaultBrigdeData = new StoredbridgeData ();
         defaultBrigdeData.ips = new string[1];
 
-        errorPanel.SetActive(false);
+
+        errorPanel = GameObject.Find("ErrorPanel");
+        inputField = GameObject.Find("InputField");
+        inputFieldTxt = GameObject.Find("inputFieldTxt");
         
+        errorPanel.SetActive(false);
+    
         brigdeLogSearch();
 
         red.a = 0.3f;
@@ -132,6 +137,7 @@ public class hueBridgeLinker : MonoBehaviour
             Debug.Log("Please enter the IP adress of your Hue brigde.. ");
             retryConn = true;
             errorPanel.SetActive(true);
+            
             
         } else {
             StartCoroutine(brigdeConnectionTest (connectedBrigde));
@@ -206,7 +212,9 @@ public class hueBridgeLinker : MonoBehaviour
                 bridgeUsername = currentBridge.username;
                 bridgeLinked = true;
                 noAccess = false;
-                StartCoroutine("hueGroupSetup");
+
+                notarizeBrigdeData(true);
+
                 break;
                 } 
             }
@@ -220,7 +228,7 @@ public class hueBridgeLinker : MonoBehaviour
     public void inputFieldHandler ()
     {
         string inputContent = inputFieldTxt.GetComponent<Text>().text.Trim();
-
+        Debug.Log("yo");
         if (Regex.IsMatch(inputContent,  @"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"))
         {
             defaultBrigdeData.ips[0] = inputContent;
@@ -292,20 +300,19 @@ public class hueBridgeLinker : MonoBehaviour
                 bridgeIP = currentBridge.internalipaddress;
                 bridgeUsername = currentBridge.username;
                 Debug.Log("Connected with brigde. Booting up the game");
-                notarizeBrigdeData();
+                notarizeBrigdeData(false);
 
-                StartCoroutine("hueGroupSetup");
             }
         }
     }
 
 
-    void notarizeBrigdeData()
+    void notarizeBrigdeData(bool _logedBridge)
     {
 
         StoredbridgeData brigeData2Save = new StoredbridgeData();
         
-        if (!string.IsNullOrWhiteSpace (connectedBrigde.ips[0])) {
+        if (!_logedBridge && !string.IsNullOrWhiteSpace (connectedBrigde.ips[0])) {
             brigeData2Save.username = new string[connectedBrigde.username.Length + 1];
             for (int i = 0; i < brigeData2Save.username.Length; i++)
             {
@@ -323,6 +330,7 @@ public class hueBridgeLinker : MonoBehaviour
         if (newIp) {
 
             if (!string.IsNullOrWhiteSpace (connectedBrigde.ips[0])) {
+
                 brigeData2Save.ips = new string[connectedBrigde.username.Length + 1];
 
                 for (int i = 0; i < brigeData2Save.ips.Length; i++)
@@ -347,62 +355,6 @@ public class hueBridgeLinker : MonoBehaviour
         writer.Close();
         errorPanel.SetActive(false);
     }
-
-
-    IEnumerator hueGroupSetup () {
-        UnityWebRequest deviceRequest = UnityWebRequest.Get(currentBridge.internalipaddress +"/api/"+ currentBridge.username +"/groups");
-        deviceRequest.timeout = 1;
-        yield return deviceRequest.SendWebRequest();
-        string message = deviceRequest.downloadHandler.text;
-
-        if (message.Contains(setupName)) {
-            Debug.Log("Brigde Contains HueHuntGame group setup");
-
-            int first = message.IndexOf(setupName);
-            string groupID = message.Substring(first - 12,  1); // !!!!REALLY WANT TO CHANGE THIS!!!!!
-            currentBridge.groupID = groupID;
-
-        } else {
-            Debug.Log("Setting up goupe");
-
-
-        }
-
-        StartCoroutine ("hueSceneSetup");
-  
-    }
-
-
- 
-     IEnumerator hueSceneSetup () {
-        UnityWebRequest deviceRequest = UnityWebRequest.Get(currentBridge.internalipaddress +"/api/"+ currentBridge.username +"/scenes");
-        deviceRequest.timeout = 1;
-        yield return deviceRequest.SendWebRequest();
-        string message = deviceRequest.downloadHandler.text;
-
-        if (message.Contains(setupName)) {
-            Debug.Log("Brigde Contains HueHuntGame scene setup");
-
-            
-
-            int first = message.IndexOf(setupName);
-            string sceneID = message.Substring(first -26,  15); // !!!!REALLY WANT TO CHANGE THIS!!!!!
-            currentBridge.sceneID = sceneID;
-   
-            setUpComplete ();
-        } else {
-            Debug.Log("Setting up HueHuntScene");
-        }
-
-    
-
-     }
-
-     void setUpComplete () {
-        centralpath = currentBridge.internalipaddress + "/api/" + currentBridge.username;
-        updateScenePath = centralpath + "/scenes/" + currentBridge.sceneID;
-        updateGroupPath = centralpath + "/groups/" + currentBridge.groupID + "/action";
-     }
 
 }
 

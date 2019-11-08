@@ -198,6 +198,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ErrorPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 1043866420514146550, guid: cf879279e21d34a59963c3fbd1990b3c,
+        type: 3}
+      propertyPath: m_Name
+      value: inputFieldTxt
+      objectReference: {fileID: 0}
     - target: {fileID: 1043866422198526022, guid: cf879279e21d34a59963c3fbd1990b3c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -304,11 +309,6 @@ PrefabInstance:
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1043866421979577513, guid: cf879279e21d34a59963c3fbd1990b3c,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 1422351378}
-    - target: {fileID: 1043866420446183310, guid: cf879279e21d34a59963c3fbd1990b3c,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -443,6 +443,11 @@ PrefabInstance:
       propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 1043866420446183310, guid: cf879279e21d34a59963c3fbd1990b3c,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1422351378}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cf879279e21d34a59963c3fbd1990b3c, type: 3}
 --- !u!224 &566144579 stripped
@@ -775,11 +780,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c4164afc262b4eae87fd39df4c133fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  outerType: 0
+  innerType: 0
   LightColor: {r: 0, g: 0.8018868, b: 0.100641735, a: 1}
   intensity: 1
   flashPrSecond: 2
-  distanceThreshold: 5.24
+  outerDistanceThreshold: 10
+  innerDistanceThreshold: 3
+  increaseFlashesWithDistance: 0
+  distanceToPlayer: 0
   enableDebug: 1
 --- !u!65 &1218499310
 BoxCollider:
@@ -987,11 +996,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c4164afc262b4eae87fd39df4c133fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  outerType: 0
+  innerType: 0
   LightColor: {r: 0.8, g: 0.16267283, b: 0, a: 1}
   intensity: 1
   flashPrSecond: 2
-  distanceThreshold: 5.24
+  outerDistanceThreshold: 10
+  innerDistanceThreshold: 3
+  increaseFlashesWithDistance: 0
+  distanceToPlayer: 0
   enableDebug: 1
 --- !u!65 &1684798515
 BoxCollider:
@@ -1081,7 +1094,7 @@ PrefabInstance:
     - target: {fileID: 599522312559182544, guid: 85d0ec88c392b4f85b087437081aaaf9,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 599522312559353584, guid: 85d0ec88c392b4f85b087437081aaaf9,
         type: 3}

@@ -44,7 +44,8 @@
     <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
-  <ItemGroup>     <Compile Include="Assets\Editor\FieldOfViewEditor.cs" />
+  <ItemGroup>     <Compile Include="Assets\Animations\Eye Blink Effect\Editor\EyeBlinkEditor.cs" />
+     <Compile Include="Assets\Editor\FieldOfViewEditor.cs" />
      <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\AntialiasingEditor.cs" />
      <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\BloomAndFlaresEditor.cs" />
      <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\BloomEditor.cs" />

@@ -52,7 +52,7 @@ public class orientation : MonoBehaviour
     void output(Color col, int bulbIndex) {
         float h, s, v;
         Color.RGBToHSV(col, out h, out s, out v);
-        print("s" + s);
+//        print("s" + s);
         h *= 65535.0f;
         s *= 254.0f;
         v *= 254.0f;

@@ -26,20 +26,24 @@ public class HueMessenger : MonoBehaviour
     }
 
     int lightState = 0;
+    float lightCounter = 0;
+    int messagesPrSecond = 1 / 20;
     void Update() {
 
-        if (!lightChange && Time.frameCount % modFrame == 0) {
+        lightCounter += Time.deltaTime;
 
-            
+        //if (!lightChange && Time.frameCount % modFrame == 0) {
+
+          if (!lightChange && lightCounter >= messagesPrSecond)  {
             //singleLightUpdate();
             //updateLights();
             //StartCoroutine("updateScene");
+            lightCounter =  0;
 
             StartCoroutine("updateLights");
             
             lightState++;
 
-            
         }
     }
 
@@ -51,24 +55,29 @@ public class HueMessenger : MonoBehaviour
 
             UnityWebRequest www1 = UnityWebRequest.Put(urlPath, myData);
                 
-//                print(jsonConv.stateOfLights(currentMessage.lights[i]));
+//          print(jsonConv.stateOfLights(currentMessage.lights[i]));
             www1.SendWebRequest();
             }
     }
 
 
+    float prevTime = 0;
     IEnumerator updateLights () {
 
         lightChange = true;
         int count = 1;
         foreach (Light _light in currentMessage.lights)
         {
+            print(Time.fixedTime - prevTime);
+            prevTime = Time.fixedTime;
             string urlPath = hueBridgeLinker.currentBridge.internalipaddress + "/api/" + hueBridgeLinker.currentBridge.username + "/lights/" + count + "/state";
             byte[] myData = System.Text.Encoding.UTF8.GetBytes(jsonConv.stateOfLights(_light));
             UnityWebRequest www1 = UnityWebRequest.Put(urlPath, myData);
             www1.SendWebRequest();
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitUntil (() => www1.isDone);
+            // print(www1.downloadHandler.text);
+            //yield return new WaitForSeconds(0.05f);
             count++;
         }
 

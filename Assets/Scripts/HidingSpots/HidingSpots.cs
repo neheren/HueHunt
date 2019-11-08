@@ -15,7 +15,6 @@ public class HidingSpots : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
 
-        Debug.Log(detectionPlayerScript == null);
         detectionPlayerScript.Hiding(true);
     }
 

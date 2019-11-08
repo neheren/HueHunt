@@ -44,7 +44,8 @@
     <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
-  <ItemGroup>     <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
+  <ItemGroup>     <Compile Include="Assets\Animations\Eye Blink Effect\Scripts\BlinkEffect.cs" />
+     <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Attributes\MinAttribute.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballAttribute.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballGroupAttribute.cs" />
@@ -89,6 +90,7 @@
      <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
      <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
      <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
+     <Compile Include="Assets\SafeZone.cs" />
      <Compile Include="Assets\SampleScenes\Menu\Scripts\MenuSceneLoader.cs" />
      <Compile Include="Assets\SampleScenes\Menu\Scripts\PauseMenu.cs" />
      <Compile Include="Assets\SampleScenes\Menu\Scripts\SceneAndURLLoader.cs" />
@@ -103,12 +105,19 @@
      <Compile Include="Assets\Scripts\HidingSpots\HidingSpots.cs" />
      <Compile Include="Assets\Scripts\hueBridgeLinker.cs" />
      <Compile Include="Assets\Scripts\HueMessenger.cs" />
+     <Compile Include="Assets\Scripts\InteractableGamObject\ItemInterface.cs" />
+     <Compile Include="Assets\Scripts\InteractableGamObject\LightSwitch.cs" />
+     <Compile Include="Assets\Scripts\InteractableGamObject\TestWall.cs" />
+     <Compile Include="Assets\Scripts\InteractableGamObject\TriggerRayCastInteractableItems.cs" />
      <Compile Include="Assets\Scripts\jsonConverter.cs" />
      <Compile Include="Assets\Scripts\Light.cs" />
+     <Compile Include="Assets\Scripts\LightWall\LightWall.cs" />
      <Compile Include="Assets\Scripts\Message.cs" />
      <Compile Include="Assets\Scripts\orientation.cs" />
      <Compile Include="Assets\Scripts\Player\DetectionRadius.cs" />
+     <Compile Include="Assets\Scripts\Player\RaycastToFindObjects.cs" />
      <Compile Include="Assets\Scripts\PseudoLight.cs" />
+     <Compile Include="Assets\TrapDoor\TrapDoor.cs" />
      <None Include="Assets\PostProcessing\Resources\Shaders\DepthOfField.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
      <None Include="Assets\swirl.shader" />
@@ -121,6 +130,7 @@
      <None Include="Assets\PostProcessing\Editor Resources\UI\CurveBackground.shader" />
      <None Include="Assets\bridgeLog.txt" />
      <None Include="Assets\NatureStarterKit2\info.txt" />
+     <None Include="Assets\Animations\Eye Blink Effect\Shaders\Blink Straight.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\ScreenSpaceReflection.shader" />
      <None Include="Assets\PostProcessing\Utilities\CustomMotionTexture\Shaders\CustomMotionVectorTexture.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\ACES.cginc" />
@@ -161,6 +171,7 @@
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\PostProcessing\Resources\Shaders\Bloom.shader" />
+     <None Include="Assets\Animations\Eye Blink Effect\Shaders\Blink Curved.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
      <None Include="Assets\PostProcessing\Editor Resources\Monitors\VectorscopeRender.shader" />
