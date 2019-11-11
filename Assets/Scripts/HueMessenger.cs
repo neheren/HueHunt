@@ -32,13 +32,13 @@ public class HueMessenger : MonoBehaviour
     float messagesPrSecond = 1 / 20;
     void Update() {
         lightCounter += Time.deltaTime;
-        if (hueBridgeLinker.bridgeLinked && readyForChange && lightCounter >= messagesPrSecond) {
+        if (readyForChange && lightCounter >= messagesPrSecond) {
             foreach (var letter in MessageFunctionReferences) {
                 Message MessageWithPriority = letter.calculateHueMessage(); // notice the break further down. the first message that is active will be chosen as higest priority
                 if(MessageWithPriority.isActive) { // if the first message (sorted by priority) is active
                     currentMessage = MessageWithPriority; // set as currentMessage
                     // print("higest priocolor: " + letter.prio + MessageWithPriority);
-                    if(!jsonConv.isSameMessage(currentMessage, pastMessage)) { // if the new message differ from the last
+                    if(!jsonConv.isSameMessage(currentMessage, pastMessage) && hueBridgeLinker.bridgeLinked) { // if the new message differ from the last
                         StartCoroutine("updateLights"); // Fire the calls
                         lightCounter =  0;
                     }
@@ -78,7 +78,7 @@ public class HueMessenger : MonoBehaviour
         readyForChange = false;
         int count = 1;
         bool didFail = false;
-
+    
         foreach (HueLight light in currentMessage.lights) { 
             if (light.update) {
                 HueLight prevLight = pastMessage.lights[count-1];
