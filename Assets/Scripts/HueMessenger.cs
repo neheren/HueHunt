@@ -2,128 +2,114 @@
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
+using System;
 
 public class HueMessenger : MonoBehaviour
 {
-    jsonConverter jsonConv;
-    public int modFrame = 10;
+    jsonConverter jsonConv;    
+    
     public static Message currentMessage, pastMessage, defaultMessage;
-
-
-    bool lightChange = false;
+    bool readyForChange = true;
 
     // Start is called before the first frame update
-    void Start() {
-        jsonConv = new jsonConverter();
-        currentMessage = new Message(1);
-        pastMessage = new Message(0);
-        pastMessage = currentMessage;
 
-        
-        currentMessage.lights[0].on = true;
-        currentMessage.lights[1].on = true;
-        currentMessage.lights[2].on = true;
+
+
+
+    void Start() {
+        StartCoroutine(LateStart(0.5f));
+
+        jsonConv = new jsonConverter();
+        currentMessage = new Message();
+        pastMessage = new Message();
+
+        pastMessage.lights[0].on = false;
+        pastMessage.lights[1].on = false;
+        pastMessage.lights[2].on = false;
+    }   
+
+    float lightCounter = 0;
+    float messagesPrSecond = 1 / 20;
+    void Update() {
+        lightCounter += Time.deltaTime;
+        if (hueBridgeLinker.bridgeLinked && readyForChange && lightCounter >= messagesPrSecond) {
+            foreach (var letter in MessageFunctionReferences) {
+                Message MessageWithPriority = letter.calculateHueMessage(); // notice the break further down. the first message that is active will be chosen as higest priority
+                if(MessageWithPriority.isActive) { // if the first message (sorted by priority) is active
+                    currentMessage = MessageWithPriority; // set as currentMessage
+                    // print("higest priocolor: " + letter.prio + MessageWithPriority);
+                    if(!jsonConv.isSameMessage(currentMessage, pastMessage)) { // if the new message differ from the last
+                        StartCoroutine("updateLights"); // Fire the calls
+                        lightCounter =  0;
+                    }
+                    break;
+                }
+            }            
+        } 
     }
 
-    int lightState = 0;
-    float lightCounter = 0;
-    int messagesPrSecond = 1 / 20;
-    void Update() {
 
-        lightCounter += Time.deltaTime;
-
-        //if (!lightChange && Time.frameCount % modFrame == 0) {
-
-          if (!lightChange && lightCounter >= messagesPrSecond)  {
-            //singleLightUpdate();
-            //updateLights();
-            //StartCoroutine("updateScene");
-            lightCounter =  0;
-
-            StartCoroutine("updateLights");
-            
-            lightState++;
-
+    class GFG : IComparer<MessageWrapper> { 
+        public int Compare(MessageWrapper x, MessageWrapper y) {
+            if (x.prio == 0 || y.prio == 0) { 
+                return 0; 
+            } 
+            return y.prio.CompareTo(x.prio); 
+        }
+    } 
+    GFG sortByLetterPrio = new GFG();
+    public struct MessageWrapper {
+        public int prio;
+        public Func<Message> calculateHueMessage;
+        public MessageWrapper(int _prio, Func<Message> _myFunc) {
+            prio = _prio;
+            calculateHueMessage = _myFunc;
         }
     }
-
-
-     void singleLightUpdate () {
-         for (int i = 0; i < 1; i++) {
-            string urlPath = hueBridgeLinker.currentBridge.internalipaddress + "/api/" + hueBridgeLinker.currentBridge.username + "/lights/" + (i + 1) + "/state";
-            byte[] myData = System.Text.Encoding.UTF8.GetBytes(jsonConv.stateOfLights(currentMessage.lights[i]));
-
-            UnityWebRequest www1 = UnityWebRequest.Put(urlPath, myData);
-                
-//          print(jsonConv.stateOfLights(currentMessage.lights[i]));
-            www1.SendWebRequest();
-            }
+    static public List<MessageWrapper> MessageFunctionReferences = new List<MessageWrapper>();
+    
+    IEnumerator LateStart(float waitTime) {
+        print(MessageFunctionReferences.Count);
+        yield return new WaitForSeconds(waitTime);
+        MessageFunctionReferences.Sort(sortByLetterPrio);
     }
 
-
-    float prevTime = 0;
     IEnumerator updateLights () {
-
-        lightChange = true;
+        readyForChange = false;
         int count = 1;
-        foreach (Light _light in currentMessage.lights)
-        {
-            print(Time.fixedTime - prevTime);
-            prevTime = Time.fixedTime;
-            string urlPath = hueBridgeLinker.currentBridge.internalipaddress + "/api/" + hueBridgeLinker.currentBridge.username + "/lights/" + count + "/state";
-            byte[] myData = System.Text.Encoding.UTF8.GetBytes(jsonConv.stateOfLights(_light));
-            UnityWebRequest www1 = UnityWebRequest.Put(urlPath, myData);
-            www1.SendWebRequest();
+        bool didFail = false;
 
-            yield return new WaitUntil (() => www1.isDone);
-            // print(www1.downloadHandler.text);
-            //yield return new WaitForSeconds(0.05f);
+        foreach (HueLight light in currentMessage.lights) { 
+            if (light.update) {
+                HueLight prevLight = pastMessage.lights[count-1];
+                string urlPath = hueBridgeLinker.currentBridge.internalipaddress + "/api/" + hueBridgeLinker.currentBridge.username + "/lights/" + count + "/state";
+
+                if(light.on != prevLight.on){
+                    print("SWITCHED LIGHT STATUS FROM " + prevLight.on + " TO " + light.on);
+                    UnityWebRequest lightOnRequest = UnityWebRequest.Put(urlPath, System.Text.Encoding.UTF8.GetBytes("{\"on\":" + light.on.ToString().ToLower() + "}"));
+                    yield return lightOnRequest.SendWebRequest();
+                    yield return new WaitUntil (() => lightOnRequest.downloadProgress >= 1);
+                    print(lightOnRequest.downloadHandler.text);
+                    prevLight.transferOnValues(light);
+                }
+
+                if(light.on){
+                    byte[] myData = System.Text.Encoding.UTF8.GetBytes(jsonConv.stateOfLights(light, prevLight, count));                
+                    UnityWebRequest parameterRequest = UnityWebRequest.Put(urlPath, myData);
+                    yield return parameterRequest.SendWebRequest();
+                    yield return new WaitUntil (() => parameterRequest.downloadProgress >= 1);
+                    didFail = parameterRequest.isHttpError || didFail;
+                    print(parameterRequest.downloadHandler.text);
+                    prevLight.transferValues(light);
+                    light.update = false;
+                }
+            } 
             count++;
         }
-
-        lightChange = false;
+        readyForChange = true;
     }
-
-    // IEnumerator updateScene () {
-
-    //     lightChange = true;
-
-    //     byte[] mySceneData = System.Text.Encoding.UTF8.GetBytes(jsonConv.updateScene(currentMessage.lights));
-    //     UnityWebRequest updateRequest = UnityWebRequest.Put(hueBridgeLinker.updateScenePath, mySceneData);
-       
-    //     yield return updateRequest.SendWebRequest();
-
-    //     yield return new WaitUntil (() => updateRequest.isDone);
-
-    //     Debug.Log(updateRequest.downloadHandler.text);
-
-    //     byte[] myDataGroup = System.Text.Encoding.UTF8.GetBytes("{\"scene\" : \"wLJTzQOhmxdfmkE\"}");
-    //     updateRequest = UnityWebRequest.Put(hueBridgeLinker.updateGroupPath, myDataGroup);
-
-    //     yield return updateRequest.SendWebRequest();
-
-    //     Debug.Log(updateRequest.downloadHandler.text);
-
-    //     yield return new WaitUntil (() => updateRequest.isDone);
-
-    //     lightChange = false;
-
-
-
-    // }
-
-    // void updateLights () {
-    //     byte[] mySceneData = System.Text.Encoding.UTF8.GetBytes(jsonConv.updateScene(currentMessage.lights));
-    //     UnityWebRequest updateRequest = UnityWebRequest.Put(hueBridgeLinker.updateScenePath, mySceneData);
-    //     updateRequest.SendWebRequest();
-    
-    //     byte[] myDataGroup = System.Text.Encoding.UTF8.GetBytes("{\"scene\" : \"wLJTzQOhmxdfmkE\"}");
-    //     updateRequest = UnityWebRequest.Put(hueBridgeLinker.updateGroupPath, myDataGroup);
-    //     updateRequest.SendWebRequest();
-    // }
-
-
-
 
 
 }
+
+

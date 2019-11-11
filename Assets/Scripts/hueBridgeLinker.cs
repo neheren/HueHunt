@@ -27,7 +27,7 @@ public class hueBridgeLinker : MonoBehaviour
     [Header("Bridge Data")]
     public string bridgeIP; // Only for visualization in unity editor;
     public string bridgeUsername; // Only to visualization in unity editor;
-    public bool bridgeLinked; // Only to visualization in unity editor;
+    static public bool bridgeLinked; // Only to visualization in unity editor;
 
     string setupName = "HueGameSetup";
 
@@ -56,6 +56,8 @@ public class hueBridgeLinker : MonoBehaviour
     GameObject errorPanel;
     GameObject inputFieldTxt;
     GameObject inputField;
+
+    GameObject enterBut;
 
 
     /// <summary>
@@ -110,11 +112,14 @@ public class hueBridgeLinker : MonoBehaviour
         defaultBrigdeData = new StoredbridgeData ();
         defaultBrigdeData.ips = new string[1];
 
-
         errorPanel = GameObject.Find("ErrorPanel");
         inputField = GameObject.Find("InputField");
         inputFieldTxt = GameObject.Find("inputFieldTxt");
-        
+        enterBut = GameObject.Find("enterBut");
+
+        inputField.GetComponent<InputField>().onEndEdit.AddListener(delegate{ipChecker();});
+        enterBut.GetComponent<Button>().onClick.AddListener(inputFieldHandler);
+
         errorPanel.SetActive(false);
     
         brigdeLogSearch();
@@ -228,7 +233,6 @@ public class hueBridgeLinker : MonoBehaviour
     public void inputFieldHandler ()
     {
         string inputContent = inputFieldTxt.GetComponent<Text>().text.Trim();
-        Debug.Log("yo");
         if (Regex.IsMatch(inputContent,  @"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"))
         {
             defaultBrigdeData.ips[0] = inputContent;
@@ -242,7 +246,7 @@ public class hueBridgeLinker : MonoBehaviour
         }
     }
 
-    public void ipChecker () {
+    void ipChecker () {
         string inputContent = inputFieldTxt.GetComponent<Text>().text.Trim();
 
         if (Regex.IsMatch(inputContent, @"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"))
@@ -328,10 +332,8 @@ public class hueBridgeLinker : MonoBehaviour
          }
 
         if (newIp) {
-
             if (!string.IsNullOrWhiteSpace (connectedBrigde.ips[0])) {
-
-                brigeData2Save.ips = new string[connectedBrigde.username.Length + 1];
+                brigeData2Save.ips = new string[connectedBrigde.ips.Length + 1];
 
                 for (int i = 0; i < brigeData2Save.ips.Length; i++)
                 {

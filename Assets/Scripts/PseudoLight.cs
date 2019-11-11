@@ -16,6 +16,7 @@ public class PseudoLight : MonoBehaviour {
     private AudioSource audio;
     public Color LightColor;
     public float intensity = 1.0f;
+    public AnimationCurve IntensityCurve = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 1f));
     public float flashPrSecond = 2;
     public float outerDistanceThreshold = 10.0f;
     public float innerDistanceThreshold = 3.0f;
@@ -23,7 +24,10 @@ public class PseudoLight : MonoBehaviour {
     public float distanceToPlayer = 0f;
     private Renderer renderReference;
     public bool enableDebug = true;
+    private float originalIntensity = 0f;
+
     void Start() {
+        originalIntensity = intensity;
         renderReference = GetComponent<Renderer>();
         LightColor *= intensity;
         renderReference.material.color = LightColor;
@@ -50,6 +54,8 @@ public class PseudoLight : MonoBehaviour {
                 float frameCount = (float)Time.frameCount;
                 intensity = (int)(Time.fixedTime * flashPrSecond % 2);
                 renderReference.material.color = LightColor * intensity;
+            } else if(chosenLightType == LightType.Static){
+                intensity = originalIntensity;
             }
         }
 

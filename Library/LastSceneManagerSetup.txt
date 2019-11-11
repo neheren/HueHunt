@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/orientation-test.unity
+- path: Assets/Scenes/TestEnvironment/AI vs Ori.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

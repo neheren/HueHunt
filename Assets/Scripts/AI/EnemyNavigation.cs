@@ -15,9 +15,13 @@ public class EnemyNavigation : MonoBehaviour
 
     private bool chasing = false;
 
+    private AudioSource audioSource;
 
     public bool debug;
+    public AudioClip walk;
+    public AudioClip chase;
 
+    public float speed = 3.5f;
     public GameObject player;
 
     private Vector3 distVector;
@@ -33,6 +37,8 @@ public class EnemyNavigation : MonoBehaviour
     {
         navAgent = GetComponent<NavMeshAgent>();
         positions = new Vector3[4];
+        audioSource = GetComponent<AudioSource>();
+        navAgent.speed = speed;
     }
 
     void Start()
@@ -45,8 +51,10 @@ public class EnemyNavigation : MonoBehaviour
 
     void Update()
     {
+        
         //If distance between centers of the circles is grerater than sum of its radiuses, the circles do not touch. if its smaller, they do
         if (Vector3.Distance(GetComponent<Transform>().position, player.GetComponent<Transform>().position) < (fieldOfView + player.GetComponent<DetectionRadius>().detectionRadius)){
+
             AttackEnemy();
         }
         else
@@ -56,17 +64,28 @@ public class EnemyNavigation : MonoBehaviour
 
     private void AttackEnemy()
     {
-        
-            chasing = true;
-        navAgent.SetDestination(player.GetComponent<Transform>().position);     
+        if (audioSource.clip == walk)
+        {
+            audioSource.clip = chase;
+            audioSource.Play();
+
+        }
+        chasing = true;
+        navAgent.SetDestination(player.GetComponent<Transform>().position);
+
+
+        if (Vector3.Distance(GetComponent<Transform>().position, player.GetComponent<Transform>().position) < 2f)
+        {
+            Debug.Log((GetComponent<Transform>().position + ", " + player.GetComponent<Transform>().position));
+            GetComponent<KillPLayer>().KillThePlayer();
+        }
     }
 
     private void Patrol(){
-
         if (navAgent.remainingDistance <= 0.01f || chasing == true){
             if (npcPauseAtPoint){
 
-                timer += Time.deltaTime;
+                timer += Time.deltaTime; 
                 if (timer >= waitTimer){
                     SetNewDestination();
                     timer = 0f;
@@ -75,7 +94,11 @@ public class EnemyNavigation : MonoBehaviour
             }
             else{
                 SetNewDestination();
+               // Debug.Log(GetComponent<Transform>().position + "," + player.GetComponent<Transform>().position);
+
                 chasing = false;
+                audioSource.clip = walk;
+                audioSource.Play();
 
             }
 

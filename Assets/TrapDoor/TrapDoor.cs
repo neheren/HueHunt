@@ -11,7 +11,7 @@ public class TrapDoor : MonoBehaviour
     }
 
     public void openDoor(){
-        TrapDoorAnimation.Play();
+        TrapDoorAnimation.Play();     
     }
 
 

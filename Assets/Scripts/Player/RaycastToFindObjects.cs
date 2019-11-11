@@ -10,7 +10,6 @@ public class RaycastToFindObjects : MonoBehaviour
     public Text interactPanelText;
     private LayerMask mask;
 
-   
     private void Start()    
     {
         mask = LayerMask.GetMask("InteractableItem");

@@ -14,6 +14,10 @@ public class LightSwitch : MonoBehaviour, ItemInterface
     float flickerOutTroCounter = 0f;
     public bool canBeTurnedOff;
 
+    public float intensityMultiplier = 1f;
+
+    private AudioSource audioSource;
+
     private bool lightsOn = false;
     private bool flickAllLightsOneByOne = false;
     private bool fadeInNOut = false;
@@ -33,6 +37,9 @@ public class LightSwitch : MonoBehaviour, ItemInterface
     void Start()
     {
         flickTimerDecreasing = flickTimer;
+        audioSource = GetComponent<AudioSource>();
+        decreasePercentage = .01f * intensityMultiplier;
+
     }
 
 
@@ -80,7 +87,7 @@ public class LightSwitch : MonoBehaviour, ItemInterface
         if (timer >= flickTimerDecreasing)
         {
             foreach (GameObject l in lights){
-                l.GetComponent<UnityEngine.Light>().intensity = (lit) ? 0 : 1;             
+                l.GetComponent<UnityEngine.Light>().intensity = (lit) ? 0 : 1*intensityMultiplier;             
             }
             lit = !lit;
             timer = 0;
@@ -97,7 +104,7 @@ public class LightSwitch : MonoBehaviour, ItemInterface
 
         if (timer >= flickTimer)
         {    
-            lights[lightCounter].GetComponent<UnityEngine.Light>().intensity = (lit) ? 0 : 1;          
+            lights[lightCounter].GetComponent<UnityEngine.Light>().intensity = (lit) ? 0 : 1*intensityMultiplier;          
             lit = !lit;
             timer = 0;
         }
@@ -115,7 +122,7 @@ public class LightSwitch : MonoBehaviour, ItemInterface
         }
     }
 
-    float decreasePercentage = .01f;
+    float decreasePercentage;
     float ints;
     private void FadeInAndOut()
     {
@@ -156,15 +163,21 @@ public class LightSwitch : MonoBehaviour, ItemInterface
 
     public void SwitchClicked()
     {
+
+
         if (lightsOn && canBeTurnedOff){
+            audioSource.Play();
             ResetLights();            
         }
         else if (!lightsOn){
             foreach (GameObject l in lights)
             {
-                l.GetComponent<UnityEngine.Light>().intensity = 1;
+
+                l.GetComponent<UnityEngine.Light>().intensity = 1*intensityMultiplier;
             }
             lightsOn = true;
+            audioSource.Play();
+
         }
     }
 

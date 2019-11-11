@@ -3,34 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class jsonConverter
-{
-    const string path = "Assets/JsonTestdoc.txt";
-
-
-   
-    public string stateOfLights (Light _light)
-    {
-        return JsonUtility.ToJson(_light);
+public class jsonConverter{
+    public bool isSameMessage (Message _message2Send, Message _pastMessage) {
+        bool sameMessage = true;
+        for (int i = 0; i < _message2Send.lights.Length; i++) {
+            if (!_message2Send.lights[i].Equals(_pastMessage.lights[i])) {
+                sameMessage = false;
+                _message2Send.lights[i].update = true;
+                
+            }   
+        }
+        return sameMessage;
 
     }
-
-
-    public string updateScene (Light [] _lights) {
-
-        string Jsonlight1 = JsonUtility.ToJson(_lights[0]);
-        string Jsonlight2 = JsonUtility.ToJson(_lights[1]);
-        string Jsonlight3 = JsonUtility.ToJson(_lights[2]);
-
-        string lightState =  "{\"lightstates\":{" + "\"1\":" + Jsonlight1 + "," + "\"2\":" + Jsonlight2 + "," + "\"3\":" + Jsonlight3 + "}}";
-        
-        // StreamWriter writer = new StreamWriter(@path, true);
-        // writer.Write(lightState);
-        // writer.Close();
-
- 
-
-        return lightState;
+    public void getDiffernces (HueLight currentLight, HueLight pastLight) {
+        currentLight.compareLight(pastLight);
     }
+    public string stateOfLights (HueLight currentlight, HueLight pastlight, int id) {
+        string JSONToSend = "";
+        getDiffernces(currentlight, pastlight);
 
+        for (int i = 0; i < currentlight.elementsToUpdate.Count; i++) {
+            if (i < currentlight.elementsToUpdate.Count - 1) {
+                JSONToSend += currentlight.elementsToUpdate[i] + ",";
+            } else {
+                JSONToSend += currentlight.elementsToUpdate[i];
+            }  
+        }
+        currentlight.elementsToUpdate.Clear();
+        return "{" + JSONToSend + "}";
+    }
 }

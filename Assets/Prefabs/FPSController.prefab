@@ -514,6 +514,8 @@ GameObject:
   m_Component:
   - component: {fileID: 599522312559353584}
   - component: {fileID: 599522312573253392}
+  - component: {fileID: 7713303659954412366}
+  - component: {fileID: 8496332987488167303}
   - component: {fileID: 599522312570451760}
   - component: {fileID: 599522312564318640}
   - component: {fileID: 599522312567282480}
@@ -558,6 +560,35 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7713303659954412366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599522312559182544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4d6bd4fb698b042b42a28d81d48184, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  findObject: 0
+  interactPanelText: {fileID: 0}
+--- !u!114 &8496332987488167303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599522312559182544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56d48d4a46c25424a970de7881359e5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRadius: 0
+  debug: 0
+  lightOn: 1
 --- !u!114 &599522312570451760
 MonoBehaviour:
   m_ObjectHideFlags: 0

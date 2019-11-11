@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class orientation : MonoBehaviour
 {
     public Camera camera;
@@ -10,15 +9,25 @@ public class orientation : MonoBehaviour
     public Bulb[] bulbs;
     public bool enableDebug = true;
     public int hueUpdateRate = 10;
+    
 
     // Start is called before the first frame update
     void Start() {
         pseudoLights = FindObjectsOfType<PseudoLight>();
         bulbs = FindObjectsOfType<Bulb>();
+        if(hueBridgeLinker.bridgeLinked) {
+            foreach (var bulb in bulbs) {
+                bulb.enabled = false;
+            }
+        }
+        HueMessenger.MessageFunctionReferences.Add(
+            new HueMessenger.MessageWrapper(1, CalcDirectionalLight)
+        );
     }
 
-    void Update() {
+    Message CalcDirectionalLight() {
         Vector3 playerPosition = camera.transform.position;
+        Message HueMessenge = new Message();
         for (int l = 0; l < bulbs.Length; l++) {
             // Each bulb:
             bulbs[l].color = Color.black;
@@ -26,8 +35,9 @@ public class orientation : MonoBehaviour
             Vector3 bulbOrientation = Vector3.Normalize(bulbs[l].transform.position - playerPosition);
 
             for (int i = 0; i < pseudoLights.Length; i++) {
-                float distanceFactor = calculateDistanceFactor(playerPosition, pseudoLights[i].transform.position, pseudoLights[i].outerDistanceThreshold);
+                float distanceFactor = calculateDistanceFactor(playerPosition, pseudoLights[i].transform.position, pseudoLights[i].outerDistanceThreshold, pseudoLights[i].innerDistanceThreshold);
                 if(distanceFactor > 0) {
+                    distanceFactor = pseudoLights[i].IntensityCurve.Evaluate(distanceFactor);
                     pseudoLights[i].distanceToPlayer = Vector3.Distance(playerPosition, pseudoLights[i].transform.position);
                     Vector3 objectOrientation = Vector3.Normalize(pseudoLights[i].transform.position - playerPosition);
                     float simularity = (calculateSimularity(objectOrientation, bulbOrientation)); 
@@ -45,18 +55,22 @@ public class orientation : MonoBehaviour
             }
             avgColor = (avgColor / pseudoLights.Length) * pseudoLights.Length;
             bulbs[l].color = avgColor;
-            output(avgColor, l);
-        }
-    }
 
-    void output(Color col, int bulbIndex) {
-        float h, s, v;
-        Color.RGBToHSV(col, out h, out s, out v);
-//        print("s" + s);
-        h *= 65535.0f;
-        s *= 254.0f;
-        v *= 254.0f;
-        HueMessenger.currentMessage.lights[bulbIndex].setvalues(true, (int)h, (int)s, (int)v, 1);
+            float h, s, v;
+            Color.RGBToHSV(avgColor, out h, out s, out v);
+
+            h *= 65535.0f;
+            s *= 254.0f;
+            v *= 254.0f;
+            bool onstate = v > 5.0f;
+
+            if(hueBridgeLinker.bridgeLinked) {
+                HueMessenge.lights[l].setvalues(true, (int)h, (int)s, (int)v, 0);
+                HueMessenge.lights[l].on = onstate;
+                // HueMessenge.isActive = onstate;
+            }
+        }
+        return HueMessenge;
     }
 
     void debug(Vector3 _playerPosition, Vector3 _objectOrientation) {
@@ -69,7 +83,10 @@ public class orientation : MonoBehaviour
         return (Mathf.Max(Vector3.Dot(lamp, dir), 0f));
     }
 
-    float calculateDistanceFactor (Vector3 from, Vector3 to, float distanceThreshold) {
-        return 1 - Mathf.Min(Vector3.Distance(from, to) / distanceThreshold, 1);
+    float calculateDistanceFactor (Vector3 from, Vector3 to, float distanceThreshold, float innerDistanceThreshold) {
+        return Mathf.Clamp(Remap(Vector3.Distance(from, to), distanceThreshold, innerDistanceThreshold, 0f, 1f), 0f, 1f);
+    }
+    public float Remap (float value, float from1, float to1, float from2, float to2) {
+        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
     }
 }
